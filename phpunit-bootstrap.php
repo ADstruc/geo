@@ -75,6 +75,7 @@ function bootstrap()
                 echo 'Using PDOEngine for PostgreSQL' . PHP_EOL;
 
                 $pdo = new PDO('pgsql:host=localhost', 'postgres', '');
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
                 $pdo->exec('CREATE EXTENSION IF NOT EXISTS postgis;');
                 $pdo->exec('DROP DATABASE IF EXISTS geo_tests');
@@ -82,10 +83,11 @@ function bootstrap()
                 $pdo->exec('CREATE DATABASE geo_tests');
                 $pdo->exec('CREATE DATABASE geo_tests_tmp');
 
-                $statement = $pdo->query('SELECT version()');
-                $version = $statement->fetchColumn(0);
-
+                $version = $pdo->query('SELECT version()')->fetchColumn(0);
                 echo 'PostgreSQL version: ' . $version . PHP_EOL;
+
+                $version = $pdo->query('SELECT PostGIS_Version()')->fetchColumn();
+                echo 'PostGIS version: ' . $version . PHP_EOL;
 
                 //Connect data for doctrine integration tests
                 $GLOBALS['db_type'] = 'pdo_pgsql';
